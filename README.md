@@ -35,3 +35,5 @@ Os requisitos não funcionais definem as qualidades, restrições e característ
 
 ## 4. Próximos Passos (Fora do Escopo Atual)
 Recursos como compartilhamento de listas com terceiros, recomendações ou integração com APIs externas (ex: TMDB, IMDB) foram deixados explicitamente fora do escopo inicial, podendo ser avaliados em versões futuras.
+
+![modelo_conceitual.png](modelo_conceitual/modelo_conceitual.png)
