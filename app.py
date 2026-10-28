@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, url_for
 from psycopg2.extras import RealDictCursor
+from werkzeug.utils import redirect
 
 from database import criar_conexao
 
@@ -59,32 +60,42 @@ def cadastrar_filme():
         {'message:': 'Filme salvo com sucesso!',
                     "filme_id": novo_id}), 201
 
+@app.route('/deletar/<int:id>', methods=['POST'])
+def deletar_filme(id):
+    conn = criar_conexao()
+    cursor = conn.cursor()
+    cursor.execute('''DELETE FROM filmes WHERE id = %s''', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("listar_filmes"))
 
-@app.route('/produtos', methods=['PUT'])
-def atualizar_produto():
-    produto = {
-        "id": 1,
-        "nome": "Caneta Azul",
-        "preco": 2.5,
-        "descricao": "Caneta esferoráfica",
-        "marca": "Bic"
-    }
+@app.route('/novo', methods=['GET', 'POST'])
+def novo_filme():
+    if request.method == 'POST':
+        titulo = request.form['titulo']
+        genero = request.form['genero']
+        capa_url = request.form['capa_url']
+        nota = request.form['nota']
+        ano_lancamento = request.form['ano_lancamento']
+        usuario_id = 1
 
-    dados = request.get_json()
+        parametros = [titulo, genero, capa_url, nota, ano_lancamento, usuario_id]
 
-    if not dados:
-        return jsonify({"erro": "Dados inválidos"}), 400
+        sql = '''
+        INSERT INTO filmes 
+        (titulo, genero, capa_url, nota, ano_lancamento, usuario_id)
+         VALUES (%s, %s, %s, %s, %s, %s)
+         
+         '''
 
-    if dados['id'] == produto['id']:
-        produto == dados
+        conn = criar_conexao()
+        cursor = conn.cursor()
+        cursor.execute(sql, parametros)
+        conn.commit()
+        conn.close()
+        return redirect(url_for("listar_filmes"))
 
-        print(f'Produto atualizado: {produto}')
-
-        return jsonify({'message:': 'Produto atualizado com sucesso!',
-                        "Produto_atualizado": produto}), 201
-
-    else:
-        return jsonify({"message": "produto não encontrado!"}), 404
+    return render_template("novo_filme.html")
 
 @app.route('/teste/db', methods=['GET'])
 def testar_conexao():
